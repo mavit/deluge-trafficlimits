@@ -1,0 +1,8 @@
+
+    [deluge.plugin.core]
+    TrafficLimits = trafficlimits:CorePlugin
+    [deluge.plugin.gtkui]
+    TrafficLimits = trafficlimits:GtkUIPlugin
+    [deluge.plugin.web]
+    TrafficLimits = trafficlimits:WebUIPlugin
+    

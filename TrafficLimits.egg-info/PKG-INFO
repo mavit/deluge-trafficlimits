@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: TrafficLimits
+Version: 0.1
+Summary: Restrict the maximum total upload/download during certain time periods.
+Home-page: http://github.com/mavit/deluge-trafficlimits
+Author: Peter Oliver
+Author-email: TrafficLimits@mavit.org.uk
+License: GPLv3
+Description: Restrict the maximum total upload/download during certain time periods.
+Platform: UNKNOWN

@@ -1,0 +1,7 @@
+TrafficLimits is a plugin for the Deluge bittorrent client
+(http://deluge-torrent.org/).
+
+It will pause all torrents if more than a set amount of data is uploaded
+or downloaded.
+
+TrafficLimits can be found at http://github.com/mavit/deluge-trafficlimits.
