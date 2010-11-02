@@ -62,13 +62,7 @@ class GtkUI(GtkPluginBase):
             tooltip="Download/upload during this period")
 
         def on_get_state(state):
-            label = state[0]
-            upload = int(state[1])
-            download = int(state[2])
-            maximum_upload = int(state[3])
-            maximum_download = int(state[4])
-            self.set_status(label, upload, download,
-                            maximum_upload, maximum_download)
+            self.set_status(*state)
 
         self.state_deferred = client.trafficlimits.get_state().addCallback(on_get_state)
         client.register_event_handler("TrafficLimitUpdate", self.on_trafficlimit_update)
@@ -83,16 +77,24 @@ class GtkUI(GtkPluginBase):
     def on_apply_prefs(self):
         log.debug("applying prefs for TrafficLimits")
         config = {
-            "test":self.glade.get_widget("txt_test").get_text()
+            "label":self.glade.get_widget("txt_label").get_text()
         }
         client.trafficlimits.set_config(config)
 
     def on_show_prefs(self):
         client.trafficlimits.get_config().addCallback(self.cb_get_config)
+        client.trafficlimits.get_state().addCallback(self.cb_get_state)
 
     def cb_get_config(self, config):
         "callback for on show_prefs"
-        self.glade.get_widget("txt_test").set_text(config["test"])
+        self.glade.get_widget("txt_label").set_text(config["label"])
+
+    def cb_get_state(self, state):
+        "callback for on show_prefs"
+        self.glade.get_widget("label_uploaded").set_text(str(state[1])
+                                                         + " bytes")
+        self.glade.get_widget("label_downloaded").set_text(str(state[2])
+                                                           + " bytes")
 
     def on_status_item_clicked(self, widget, event):
         component.get("Preferences").show("TrafficLimits")
@@ -115,5 +117,6 @@ class GtkUI(GtkPluginBase):
         def on_state_deferred(s):
             self.set_status(label, upload, download,
                             maximum_upload, maximum_download)
+            self.cb_get_state([label, upload, download])
 
         self.state_deferred.addCallback(on_state_deferred)
