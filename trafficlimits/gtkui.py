@@ -50,6 +50,10 @@ from common import get_resource
 class GtkUI(GtkPluginBase):
     def enable(self):
         self.glade = gtk.glade.XML(get_resource("config.glade"))
+        self.glade.signal_autoconnect({
+                "on_button_clear_clicked": self.on_button_clear_clicked,
+                "on_spinbutton_download_editing_done": self.on_spinbutton_download_editing_done,
+                });
 
         component.get("Preferences").add_page("TrafficLimits", self.glade.get_widget("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
@@ -77,7 +81,11 @@ class GtkUI(GtkPluginBase):
     def on_apply_prefs(self):
         log.debug("applying prefs for TrafficLimits")
         config = {
-            "label":self.glade.get_widget("txt_label").get_text()
+            "label": self.glade.get_widget("txt_label").get_text(),
+            "maximum_upload":
+                int(self.glade.get_widget("spinbutton_upload").get_value()),
+            "maximim_download":
+                int(self.glade.get_widget("spinbutton_download").get_value()),
         }
         client.trafficlimits.set_config(config)
 
@@ -88,6 +96,10 @@ class GtkUI(GtkPluginBase):
     def cb_get_config(self, config):
         "callback for on show_prefs"
         self.glade.get_widget("txt_label").set_text(config["label"])
+        self.glade.get_widget("spinbutton_upload").set_value(
+            config["maximum_upload"])
+        self.glade.get_widget("spinbutton_download").set_value(
+            config["maximim_download"])
 
     def cb_get_state(self, state):
         "callback for on show_prefs"
@@ -98,6 +110,14 @@ class GtkUI(GtkPluginBase):
 
     def on_status_item_clicked(self, widget, event):
         component.get("Preferences").show("TrafficLimits")
+
+    def on_button_clear_clicked(self, widget):
+        client.trafficlimits.reset_initial()
+        self.glade.get_widget("label_uploaded").set_text("0 bytes")
+        self.glade.get_widget("label_downloaded").set_text("0 bytes")
+
+    def on_spinbutton_download_editing_done(self, widget):
+        log.debug("DONE")
 
     def set_status(self, label, upload, download,
                    maximum_upload, maximum_download):

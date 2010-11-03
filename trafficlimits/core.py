@@ -57,7 +57,7 @@ class Core(CorePluginBase):
         log.debug("TrafficLimits: Enabling...")
         self.config = deluge.configmanager.ConfigManager("trafficlimits.conf",
                                                          DEFAULT_PREFS)
-        self.reset_initial()
+        self.set_initial()
         self.load_limits()
 
         self.update_timer = LoopingCall(self.update_traffic)
@@ -127,12 +127,16 @@ class Core(CorePluginBase):
 
         if self.label != self.config["label"]:
             self.config["label"] = self.label
-            self.config["previous_upload"] = 0
-            self.config["previous_download"] = 0
             self.reset_initial()
             component.get("Core").session.resume()
 
+    @export
     def reset_initial(self):
+        self.config["previous_upload"] = 0
+        self.config["previous_download"] = 0
+        self.set_initial()
+
+    def set_initial(self):
         status = component.get("Core").get_session_status(["total_download", "total_upload"])
         self.initial_upload = status["total_upload"]
         self.initial_download = status["total_download"]
