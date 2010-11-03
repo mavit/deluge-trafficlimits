@@ -94,10 +94,10 @@ class Core(CorePluginBase):
         log.debug("TrafficLimits: previous_upload: %d" % self.config["previous_upload"])
         log.debug("TrafficLimits: previous_download: %d" % self.config["previous_download"])
 
-        self.upload = ( self.config["previous_upload"] + self.session_upload
-                   - self.initial_upload )
-        self.download = ( self.config["previous_upload"] + self.session_download
-                     - self.initial_download )
+        self.upload = ( self.config["previous_upload"]
+                        + self.session_upload - self.initial_upload )
+        self.download = ( self.config["previous_download"]
+                          + self.session_download - self.initial_download )
 
         if self.maximum_upload >= 0 and self.upload > self.maximum_upload:
             log.info("TrafficLimits: Session paused due to excessive upload.")
