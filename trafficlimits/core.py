@@ -85,26 +85,32 @@ class Core(CorePluginBase):
         self.session_upload = status["total_upload"]
         self.session_download = status["total_download"]
 
-        log.debug("TrafficLimits: maximum_upload: %d" % self.maximum_upload)
-        log.debug("TrafficLimits: maximum_download: %d" % self.maximum_download)
+        log.debug("TrafficLimits: maximum_upload: %d"
+                  % self.config["maximum_upload"])
+        log.debug("TrafficLimits: maximum_download: %d"
+                  % self.config["maximum_download"])
         log.debug("TrafficLimits: initial_upload: %d" % self.initial_upload)
         log.debug("TrafficLimits: initial_download: %d" % self.initial_download)
         log.debug("TrafficLimits: session_upload: %d" % self.session_upload)
         log.debug("TrafficLimits: session_download: %d" % self.session_download)
-        log.debug("TrafficLimits: previous_upload: %d" % self.config["previous_upload"])
-        log.debug("TrafficLimits: previous_download: %d" % self.config["previous_download"])
+        log.debug("TrafficLimits: previous_upload: %d"
+                  % self.config["previous_upload"])
+        log.debug("TrafficLimits: previous_download: %d"
+                  % self.config["previous_download"])
 
         self.upload = ( self.config["previous_upload"]
                         + self.session_upload - self.initial_upload )
         self.download = ( self.config["previous_download"]
                           + self.session_download - self.initial_download )
 
-        if self.maximum_upload >= 0 and self.upload > self.maximum_upload:
+        if ( self.config["maximum_upload"] >= 0
+             and self.upload > self.config["maximum_upload"] ):
             log.info("TrafficLimits: Session paused due to excessive upload.")
             component.get("Core").session.pause()
             self.initial_upload = self.session_upload
             self.config["previous_upload"] = 0
-        if self.maximum_download >= 0 and self.download > self.maximum_download:
+        if ( self.config["maximum_download"] >= 0
+             and self.download > self.config["maximum_download"] ):
             log.info("TrafficLimits: Session paused due to excessive download.")
             component.get("Core").session.pause()
             self.initial_download = self.session_download
@@ -112,7 +118,7 @@ class Core(CorePluginBase):
 
         component.get("EventManager").emit(TrafficLimitUpdate(
                 self.label, self.upload, self.download,
-                self.maximum_upload, self.maximum_download))
+                self.config["maximum_upload"], self.config["maximum_download"]))
 
     def load_limits(self):
         log.debug("TrafficLimits: Loading limits...")
@@ -120,8 +126,10 @@ class Core(CorePluginBase):
         limits = open('/home/azureus/.config/deluge/trafficlimits')
         self.limits_mtime = os.fstat(limits.fileno()).st_mtime
         self.label = limits.readline().rstrip(os.linesep)
-        self.maximum_upload = int(limits.readline().rstrip(os.linesep))
-        self.maximum_download = int(limits.readline().rstrip(os.linesep))
+        self.config["maximum_upload"] \
+            = int(limits.readline().rstrip(os.linesep))
+        self.config["maximum_download"] \
+            = int(limits.readline().rstrip(os.linesep))
 
         log.debug("TrafficLimits: label:" + self.label)
 
@@ -137,7 +145,8 @@ class Core(CorePluginBase):
         self.set_initial()
 
     def set_initial(self):
-        status = component.get("Core").get_session_status(["total_download", "total_upload"])
+        status = component.get("Core").get_session_status(["total_download",
+                                                           "total_upload"])
         self.initial_upload = status["total_upload"]
         self.initial_download = status["total_download"]
 
@@ -156,7 +165,8 @@ class Core(CorePluginBase):
     @export
     def get_state(self):
         state = [ self.label, self.upload, self.download,
-                  self.maximum_upload, self.maximum_download ]
+                  self.config["maximum_upload"],
+                  self.config["maximum_download"] ]
         return state
 
 class TrafficLimitUpdate (DelugeEvent):
