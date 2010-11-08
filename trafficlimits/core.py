@@ -57,6 +57,7 @@ class Core(CorePluginBase):
         log.debug("TrafficLimits: Enabling...")
         self.config = deluge.configmanager.ConfigManager("trafficlimits.conf",
                                                          DEFAULT_PREFS)
+        self.paused = False	# Paused by us, not some other plugin.
         self.set_initial()
         self.load_limits()
 
@@ -72,7 +73,8 @@ class Core(CorePluginBase):
         self.config["previous_download"] \
             += self.session_download - self.initial_download
         self.config.save()
-        component.get("Core").session.resume()
+        if self.paused:
+            component.get("Core").session.resume()
 
     def update_traffic(self):
         log.debug("TrafficLimits: Updating...")
@@ -106,12 +108,14 @@ class Core(CorePluginBase):
         if ( self.config["maximum_upload"] >= 0
              and self.upload > self.config["maximum_upload"] ):
             log.info("TrafficLimits: Session paused due to excessive upload.")
+            self.paused = True
             component.get("Core").session.pause()
             self.initial_upload = self.session_upload
             self.config["previous_upload"] = 0
         if ( self.config["maximum_download"] >= 0
              and self.download > self.config["maximum_download"] ):
             log.info("TrafficLimits: Session paused due to excessive download.")
+            self.paused = True
             component.get("Core").session.pause()
             self.initial_download = self.session_download
             self.config["previous_download"] = 0
@@ -136,7 +140,9 @@ class Core(CorePluginBase):
         if self.label != self.config["label"]:
             self.config["label"] = self.label
             self.reset_initial()
-            component.get("Core").session.resume()
+            if self.paused:
+                self.paused = False
+                component.get("Core").session.resume()
 
     @export
     def reset_initial(self):
