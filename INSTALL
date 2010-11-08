@@ -1,0 +1,6 @@
+Run the following command:
+
+    python setup.py bdist_egg
+
+A python egg will be created in the "dist" directory, which can then be
+installed using the Deluge GUI's Plugin Preferences.
