@@ -84,7 +84,7 @@ class GtkUI(GtkPluginBase):
             "label": self.glade.get_widget("txt_label").get_text(),
             "maximum_upload":
                 int(self.glade.get_widget("spinbutton_upload").get_value()),
-            "maximim_download":
+            "maximum_download":
                 int(self.glade.get_widget("spinbutton_download").get_value()),
         }
         client.trafficlimits.set_config(config)
@@ -99,7 +99,7 @@ class GtkUI(GtkPluginBase):
         self.glade.get_widget("spinbutton_upload").set_value(
             config["maximum_upload"])
         self.glade.get_widget("spinbutton_download").set_value(
-            config["maximim_download"])
+            config["maximum_download"])
 
     def cb_get_state(self, state):
         "callback for on show_prefs"
