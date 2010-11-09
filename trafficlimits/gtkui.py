@@ -44,8 +44,8 @@ from deluge.ui.client import client
 from deluge.plugins.pluginbase import GtkPluginBase
 import deluge.component as component
 import deluge.common
-
 from common import get_resource
+import time
 
 class GtkUI(GtkPluginBase):
     def enable(self):
@@ -103,10 +103,12 @@ class GtkUI(GtkPluginBase):
 
     def cb_get_state(self, state):
         "callback for on show_prefs"
-        self.glade.get_widget("label_uploaded").set_text(str(state[1])
-                                                         + " bytes")
-        self.glade.get_widget("label_downloaded").set_text(str(state[2])
-                                                           + " bytes")
+        self.glade.get_widget("label_uploaded").set_text(
+            str(state[1]) + " bytes since "
+            + time.strftime("%c", time.localtime(state[5])))
+        self.glade.get_widget("label_downloaded").set_text(
+            str(state[2]) + " bytes since "
+            + time.strftime("%c", time.localtime(state[6])))
 
     def on_status_item_clicked(self, widget, event):
         component.get("Preferences").show("TrafficLimits")
@@ -120,7 +122,8 @@ class GtkUI(GtkPluginBase):
         log.debug("DONE")
 
     def set_status(self, label, upload, download,
-                   maximum_upload, maximum_download):
+                   maximum_upload, maximum_download,
+                   reset_time_upload, reset_time_download):
         self.status_item.set_text(
             "%s: %s/%s (%d%%/%d%%)"
             % (label,
@@ -132,11 +135,15 @@ class GtkUI(GtkPluginBase):
                    if maximum_upload >= 0 else 0,
                ))
 
-    def on_trafficlimit_update(self, label, upload, download,
-                               maximum_upload, maximum_download):
+    def on_trafficlimit_update(self, label, upload, download, maximum_upload,
+                               maximum_download, reset_time_upload,
+                               reset_time_download):
         def on_state_deferred(s):
             self.set_status(label, upload, download,
-                            maximum_upload, maximum_download)
-            self.cb_get_state([label, upload, download])
+                            maximum_upload, maximum_download,
+                            reset_time_upload, reset_time_download)
+            self.cb_get_state([label, upload, download, maximum_upload,
+                               maximum_download, reset_time_upload,
+                               reset_time_download])
 
         self.state_deferred.addCallback(on_state_deferred)

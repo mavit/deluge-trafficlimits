@@ -45,6 +45,7 @@ from deluge.core.rpcserver import export
 import os
 from deluge.event import DelugeEvent
 from twisted.internet.task import LoopingCall
+import time
 
 DEFAULT_PREFS = {
     "previous_upload": 0,
@@ -112,6 +113,7 @@ class Core(CorePluginBase):
             component.get("Core").session.pause()
             self.initial_upload = self.session_upload
             self.config["previous_upload"] = 0
+            self.config["reset_time_upload"] = time.time()
         if ( self.config["maximum_download"] >= 0
              and self.download > self.config["maximum_download"] ):
             log.info("TrafficLimits: Session paused due to excessive download.")
@@ -119,10 +121,14 @@ class Core(CorePluginBase):
             component.get("Core").session.pause()
             self.initial_download = self.session_download
             self.config["previous_download"] = 0
+            self.config["reset_time_download"] = time.time()
+
 
         component.get("EventManager").emit(TrafficLimitUpdate(
                 self.label, self.upload, self.download,
-                self.config["maximum_upload"], self.config["maximum_download"]))
+                self.config["maximum_upload"], self.config["maximum_download"],
+                self.config["reset_time_upload"],
+                self.config["reset_time_download"]))
 
     def load_limits(self):
         log.debug("TrafficLimits: Loading limits...")
@@ -148,6 +154,8 @@ class Core(CorePluginBase):
     def reset_initial(self):
         self.config["previous_upload"] = 0
         self.config["previous_download"] = 0
+        self.config["reset_time_upload"] = time.time()
+        self.config["reset_time_download"] = self.config["reset_time_upload"]
         self.set_initial()
 
     def set_initial(self):
@@ -172,15 +180,17 @@ class Core(CorePluginBase):
     def get_state(self):
         state = [ self.label, self.upload, self.download,
                   self.config["maximum_upload"],
-                  self.config["maximum_download"] ]
+                  self.config["maximum_download"],
+                  self.config["reset_time_upload"],
+                  self.config["reset_time_download"] ]
         return state
 
 class TrafficLimitUpdate (DelugeEvent):
     """
     Emitted when the ammount of transferred data changes.
     """
-    def __init__(self, label, upload, download,
-                 maximum_upload, maximum_download):
+    def __init__(self, label, upload, download, maximum_upload,
+                 maximum_download, reset_time_upload, reset_time_download):
         """
         :param FIXME label: str, a description of the current period
         :param upload: str, bytes uploaded during the current period
@@ -188,4 +198,5 @@ class TrafficLimitUpdate (DelugeEvent):
         :param maximum_upload: str, upper bound for bytes transmitted
         :param maximum_download: str, upper bound for bytes received
         """
-        self._args = [label, upload, download, maximum_upload, maximum_download]
+        self._args = [label, upload, download, maximum_upload, maximum_download,
+                      reset_time_upload, reset_time_download]
