@@ -22,4 +22,4 @@ This is intended to be used by a cron job for automatic scheduling, e.g.,
 
 ## See also:
 
-Plese see also the [_Toggle_ plugin](http://dev.deluge-torrent.org/wiki/Plugins/Toggle).  You will need this to resume transfers once they have been paused.
+Please see also the [_Toggle_ plugin](http://dev.deluge-torrent.org/wiki/Plugins/Toggle).  You will need this to resume transfers once they have been paused, unless you use the automatic scheduling..
