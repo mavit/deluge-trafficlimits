@@ -1,9 +1,9 @@
 Deluge Traffic Limits
 =====================
 
-_TrafficLimits_ is a plugin for the Deluge bittorrent client (http://deluge-torrent.org/).  It will pause all torrents if more than a set amount of data is uploaded or downloaded.
+_TrafficLimits_ is a plugin for the [Deluge bittorrent client](http://deluge-torrent.org/).  It will pause all torrents if more than a set amount of data is uploaded or downloaded.
 
-TrafficLimits can be found at http://github.com/mavit/deluge-trafficlimits.
+TrafficLimits can be found at [http://github.com/mavit/deluge-trafficlimits](http://github.com/mavit/deluge-trafficlimits).
 
 
 ## Configuration:
@@ -22,4 +22,4 @@ This is intended to be used by a cron job for automatic scheduling, e.g.,
 
 ## See also:
 
-Plese see also the _Toggle_ plugin, at http://dev.deluge-torrent.org/wiki/Plugins/Toggle.  You will need this to resume transfers once they have been paused.
+Plese see also the [_Toggle_ plugin](http://dev.deluge-torrent.org/wiki/Plugins/Toggle).  You will need this to resume transfers once they have been paused.
