@@ -88,19 +88,6 @@ class Core(CorePluginBase):
         self.session_upload = status["total_upload"]
         self.session_download = status["total_download"]
 
-        log.debug("TrafficLimits: maximum_upload: %d"
-                  % self.config["maximum_upload"])
-        log.debug("TrafficLimits: maximum_download: %d"
-                  % self.config["maximum_download"])
-        log.debug("TrafficLimits: initial_upload: %d" % self.initial_upload)
-        log.debug("TrafficLimits: initial_download: %d" % self.initial_download)
-        log.debug("TrafficLimits: session_upload: %d" % self.session_upload)
-        log.debug("TrafficLimits: session_download: %d" % self.session_download)
-        log.debug("TrafficLimits: previous_upload: %d"
-                  % self.config["previous_upload"])
-        log.debug("TrafficLimits: previous_download: %d"
-                  % self.config["previous_download"])
-
         self.upload = ( self.config["previous_upload"]
                         + self.session_upload - self.initial_upload )
         self.download = ( self.config["previous_download"]
@@ -114,6 +101,7 @@ class Core(CorePluginBase):
             self.initial_upload = self.session_upload
             self.config["previous_upload"] = 0
             self.config["reset_time_upload"] = time.time()
+
         if ( self.config["maximum_download"] >= 0
              and self.download > self.config["maximum_download"] ):
             log.info("TrafficLimits: Session paused due to excessive download.")
@@ -122,7 +110,6 @@ class Core(CorePluginBase):
             self.initial_download = self.session_download
             self.config["previous_download"] = 0
             self.config["reset_time_download"] = time.time()
-
 
         component.get("EventManager").emit(TrafficLimitUpdate(
                 self.label, self.upload, self.download,
@@ -140,8 +127,6 @@ class Core(CorePluginBase):
             = int(limits.readline().rstrip(os.linesep))
         self.config["maximum_download"] \
             = int(limits.readline().rstrip(os.linesep))
-
-        log.debug("TrafficLimits: label:" + self.label)
 
         if self.label != self.config["label"]:
             self.config["label"] = self.label

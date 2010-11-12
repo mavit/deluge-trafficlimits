@@ -52,7 +52,6 @@ class GtkUI(GtkPluginBase):
         self.glade = gtk.glade.XML(get_resource("config.glade"))
         self.glade.signal_autoconnect({
                 "on_button_clear_clicked": self.on_button_clear_clicked,
-                "on_spinbutton_download_editing_done": self.on_spinbutton_download_editing_done,
                 });
 
         component.get("Preferences").add_page("TrafficLimits", self.glade.get_widget("prefs_box"))
@@ -117,9 +116,6 @@ class GtkUI(GtkPluginBase):
         client.trafficlimits.reset_initial()
         self.glade.get_widget("label_uploaded").set_text("0 bytes")
         self.glade.get_widget("label_downloaded").set_text("0 bytes")
-
-    def on_spinbutton_download_editing_done(self, widget):
-        log.debug("DONE")
 
     def set_status(self, label, upload, download,
                    maximum_upload, maximum_download,
