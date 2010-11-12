@@ -59,6 +59,8 @@ class Core(CorePluginBase):
         self.config = deluge.configmanager.ConfigManager("trafficlimits.conf",
                                                          DEFAULT_PREFS)
         self.paused = False	# Paused by us, not some other plugin.
+        self.label = self.config["label"]
+        self.limits_mtime = 0
         self.set_initial()
         self.load_limits()
 
@@ -79,9 +81,14 @@ class Core(CorePluginBase):
 
     def update_traffic(self):
         log.debug("TrafficLimits: Updating...")
-        if os.stat(deluge.configmanager.get_config_dir("trafficlimits")) \
-                .st_mtime != self.limits_mtime:
-            self.load_limits();
+        try:
+            if os.stat(deluge.configmanager.get_config_dir("trafficlimits")) \
+                    .st_mtime != self.limits_mtime:
+                self.load_limits();
+        except OSError as error:
+            log.debug("TrafficLimits: "
+                      + deluge.configmanager.get_config_dir("trafficlimits")
+                      + ": " + str(error))
 
         status = component.get("Core").get_session_status(["total_upload",
                                                            "total_download"])
@@ -120,13 +127,22 @@ class Core(CorePluginBase):
     def load_limits(self):
         log.debug("TrafficLimits: Loading limits...")
 
-        limits = open('/home/azureus/.config/deluge/trafficlimits')
-        self.limits_mtime = os.fstat(limits.fileno()).st_mtime
-        self.label = limits.readline().rstrip(os.linesep)
-        self.config["maximum_upload"] \
-            = int(limits.readline().rstrip(os.linesep))
-        self.config["maximum_download"] \
-            = int(limits.readline().rstrip(os.linesep))
+        try:
+            limits = open(deluge.configmanager.get_config_dir("trafficlimits"))
+            limits_mtime = os.fstat(limits.fileno()).st_mtime
+            label = limits.readline().rstrip(os.linesep)
+            maximum_upload = int(limits.readline().rstrip(os.linesep))
+            maximum_download = int(limits.readline().rstrip(os.linesep))
+        except (IOError, OSError, ValueError) as error:
+            log.error("TrafficLimits: "
+                      + deluge.configmanager.get_config_dir("trafficlimits")
+                      + ": " + str(error))
+            return
+
+        self.limits_mtime = limits_mtime
+        self.label = label
+        self.config["maximum_upload"] = maximum_upload
+        self.config["maximum_download"] = maximum_download
 
         if self.label != self.config["label"]:
             self.config["label"] = self.label
