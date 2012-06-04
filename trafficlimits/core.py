@@ -48,6 +48,8 @@ from twisted.internet.task import LoopingCall
 import time
 
 DEFAULT_PREFS = {
+    "maximum_upload": 0,
+    "maximum_download": 0,
     "previous_upload": 0,
     "previous_download": 0,
     "label": ""
