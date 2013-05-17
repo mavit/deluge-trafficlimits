@@ -49,12 +49,13 @@ import time
 
 class GtkUI(GtkPluginBase):
     def enable(self):
-        self.glade = gtk.glade.XML(get_resource("config.glade"))
-        self.glade.signal_autoconnect({
+        self.builder = gtk.Builder();
+        self.builder.add_from_file(get_resource("config.ui"))
+        self.builder.connect_signals({
                 "on_button_clear_clicked": self.on_button_clear_clicked,
                 });
 
-        component.get("Preferences").add_page("TrafficLimits", self.glade.get_widget("prefs_box"))
+        component.get("Preferences").add_page("TrafficLimits", self.builder.get_object("prefs_box"))
         component.get("PluginManager").register_hook("on_apply_prefs", self.on_apply_prefs)
         component.get("PluginManager").register_hook("on_show_prefs", self.on_show_prefs)
 
@@ -80,11 +81,11 @@ class GtkUI(GtkPluginBase):
     def on_apply_prefs(self):
         log.debug("applying prefs for TrafficLimits")
         config = {
-            "label": self.glade.get_widget("txt_label").get_text(),
+            "label": self.builder.get_object("txt_label").get_text(),
             "maximum_upload":
-                int(self.glade.get_widget("spinbutton_upload").get_value()),
+                int(self.builder.get_object("spinbutton_upload").get_value()),
             "maximum_download":
-                int(self.glade.get_widget("spinbutton_download").get_value()),
+                int(self.builder.get_object("spinbutton_download").get_value()),
         }
         client.trafficlimits.set_config(config)
 
@@ -94,18 +95,18 @@ class GtkUI(GtkPluginBase):
 
     def cb_get_config(self, config):
         "callback for on show_prefs"
-        self.glade.get_widget("txt_label").set_text(config["label"])
-        self.glade.get_widget("spinbutton_upload").set_value(
+        self.builder.get_object("txt_label").set_text(config["label"])
+        self.builder.get_object("spinbutton_upload").set_value(
             config["maximum_upload"])
-        self.glade.get_widget("spinbutton_download").set_value(
+        self.builder.get_object("spinbutton_download").set_value(
             config["maximum_download"])
 
     def cb_get_state(self, state):
         "callback for on show_prefs"
-        self.glade.get_widget("label_uploaded").set_text(
+        self.builder.get_object("label_uploaded").set_text(
             str(state[1]) + " bytes since "
             + time.strftime("%c", time.localtime(state[5])))
-        self.glade.get_widget("label_downloaded").set_text(
+        self.builder.get_object("label_downloaded").set_text(
             str(state[2]) + " bytes since "
             + time.strftime("%c", time.localtime(state[6])))
 
@@ -114,8 +115,8 @@ class GtkUI(GtkPluginBase):
 
     def on_button_clear_clicked(self, widget):
         client.trafficlimits.reset_initial()
-        self.glade.get_widget("label_uploaded").set_text("0 bytes")
-        self.glade.get_widget("label_downloaded").set_text("0 bytes")
+        self.builder.get_object("label_uploaded").set_text("0 bytes")
+        self.builder.get_object("label_downloaded").set_text("0 bytes")
 
     def set_status(self, label, upload, download,
                    maximum_upload, maximum_download,
