@@ -8,16 +8,17 @@ TrafficLimits can be found at [http://github.com/mavit/deluge-trafficlimits](htt
 
 ## Configuration:
 
-As well as setting the limits through the preferences (GTK UI only, for now), you can also create a file called `~/.config/deluge/trafficlimits` containing a label, the upload limit, and the download limit (in bytes), each on a line by themselves.  For example:
+As well as setting the limits through the preferences (GTK UI only, for now), you can also create a file called `~/.config/deluge/trafficlimits` containing a label, the upload limit, the download limit, and the combined limit (in bytes), each on a line by themselves.  For example:
 
     January
     -1
     21474836480
+    -1
 
 This is intended to be used by a cron job for automatic scheduling, e.g.,
 
-    * 00-15,21-23 * * * /bin/echo -e "Unlimited\n-1\n-1"             > ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp && mv ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits
-    * 16-20       * * * /bin/echo -e "Evening\n400000000\n750000000" > ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp && mv ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits
+    * 00-15,21-23 * * * /bin/echo -e "Unlimited\n-1\n-1\n-1"             > ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp && mv ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits
+    * 16-20       * * * /bin/echo -e "Evening\n400000000\n750000000\n-1" > ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp && mv ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits.tmp ${XDG_CONFIG_HOME:-~/.config}/deluge/trafficlimits
 
 
 ## See also:

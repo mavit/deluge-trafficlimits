@@ -63,7 +63,7 @@ class GtkUI(GtkPluginBase):
             image=get_resource("monitor.png"),
             text="",
             callback=self.on_status_item_clicked,
-            tooltip="Download/upload during this period")
+            tooltip="Download/upload/total during this period")
 
         def on_get_state(state):
             self.set_status(*state)
@@ -86,6 +86,8 @@ class GtkUI(GtkPluginBase):
                 int(self.builder.get_object("spinbutton_upload").get_value()),
             "maximum_download":
                 int(self.builder.get_object("spinbutton_download").get_value()),
+            "maximum_total":
+                int(self.builder.get_object("spinbutton_total").get_value()),
         }
         client.trafficlimits.set_config(config)
 
@@ -100,15 +102,20 @@ class GtkUI(GtkPluginBase):
             config["maximum_upload"])
         self.builder.get_object("spinbutton_download").set_value(
             config["maximum_download"])
+        self.builder.get_object("spinbutton_total").set_value(
+            config["maximum_total"])
 
     def cb_get_state(self, state):
         "callback for on show_prefs"
         self.builder.get_object("label_uploaded").set_text(
             str(state[1]) + " bytes since "
-            + time.strftime("%c", time.localtime(state[5])))
+            + time.strftime("%c", time.localtime(state[7])))
         self.builder.get_object("label_downloaded").set_text(
             str(state[2]) + " bytes since "
-            + time.strftime("%c", time.localtime(state[6])))
+            + time.strftime("%c", time.localtime(state[8])))
+        self.builder.get_object("label_transferred").set_text(
+            str(state[3]) + " bytes since "
+            + time.strftime("%c", time.localtime(state[9])))
 
     def on_status_item_clicked(self, widget, event):
         component.get("Preferences").show("TrafficLimits")
@@ -117,30 +124,37 @@ class GtkUI(GtkPluginBase):
         client.trafficlimits.reset_initial()
         self.builder.get_object("label_uploaded").set_text("0 bytes")
         self.builder.get_object("label_downloaded").set_text("0 bytes")
+        self.builder.get_object("label_transferred").set_text("0 bytes")
 
-    def set_status(self, label, upload, download,
-                   maximum_upload, maximum_download,
-                   reset_time_upload, reset_time_download):
+    def set_status(self, label, upload, download, total,
+                   maximum_upload, maximum_download, maximum_total,
+                   reset_time_upload, reset_time_download, reset_time_total):
         self.status_item.set_text(
-            "%s: %s/%s (%d%%/%d%%)"
+            "%s: %s/%s/%s (%d%%/%d%%/%d%%)"
             % (label,
                deluge.common.fsize(download),
                deluge.common.fsize(upload),
+               deluge.common.fsize(total),
                100 * download / maximum_download
                    if maximum_download >= 0 else 0,
                100 * upload / maximum_upload
                    if maximum_upload >= 0 else 0,
+               100 * total / maximum_total
+                   if maximum_total >= 0 else 0,
                ))
 
-    def on_trafficlimit_update(self, label, upload, download, maximum_upload,
-                               maximum_download, reset_time_upload,
-                               reset_time_download):
+    def on_trafficlimit_update(self, label, upload, download, total,
+                               maximum_upload, maximum_download, maximum_total,
+                               reset_time_upload, reset_time_download,
+                               reset_time_total):
         def on_state_deferred(s):
-            self.set_status(label, upload, download,
-                            maximum_upload, maximum_download,
-                            reset_time_upload, reset_time_download)
-            self.cb_get_state([label, upload, download, maximum_upload,
-                               maximum_download, reset_time_upload,
-                               reset_time_download])
+            self.set_status(label, upload, download, total,
+                            maximum_upload, maximum_download, maximum_total,
+                            reset_time_upload, reset_time_download,
+                            reset_time_total)
+            self.cb_get_state([label, upload, download, total,
+                               maximum_upload, maximum_download, maximum_total,
+                               reset_time_upload, reset_time_download,
+                               reset_time_total])
 
         self.state_deferred.addCallback(on_state_deferred)

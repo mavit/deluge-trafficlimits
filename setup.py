@@ -42,7 +42,7 @@ from setuptools import setup
 __plugin_name__ = "TrafficLimits"
 __author__ = "Peter Oliver"
 __author_email__ = "TrafficLimits@mavit.org.uk"
-__version__ = "0.2"
+__version__ = "0.3"
 __url__ = "http://github.com/mavit/deluge-trafficlimits"
 __license__ = "GPLv3"
 __description__ = "Restrict the maximum total upload/download during certain time periods."
