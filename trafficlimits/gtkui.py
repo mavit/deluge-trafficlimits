@@ -63,7 +63,8 @@ class GtkUI(GtkPluginBase):
             image=get_resource("monitor.png"),
             text="",
             callback=self.on_status_item_clicked,
-            tooltip="Download/upload/total during this period")
+            tooltip="TrafficLimits plugin"
+        )
 
         def on_get_state(state):
             self.set_status(*state)
@@ -129,20 +130,39 @@ class GtkUI(GtkPluginBase):
     def set_status(self, label, upload, download, total,
                    maximum_upload, maximum_download, maximum_total,
                    reset_time_upload, reset_time_download, reset_time_total):
-        self.status_item.set_text(
-            "%s: %s/%s/%s (%d%%/%d%%/%d%%)"
-            % (label,
-               deluge.common.fsize(download),
-               deluge.common.fsize(upload),
-               deluge.common.fsize(total),
-               100 * download / maximum_download
-                   if maximum_download >= 0 else 0,
-               100 * upload / maximum_upload
-                   if maximum_upload >= 0 else 0,
-               100 * total / maximum_total
-                   if maximum_total >= 0 else 0,
-               ))
+        status = ""
+        pairs = [
+             [download, maximum_download],
+             [upload, maximum_upload],
+             [total, maximum_total],
+         ]
+        used = "/".join(
+            ["%s" % deluge.common.fsize(p[0]) for p in pairs if p[1] >= 0]
+        )
+        if used == "":
+            status = label
+        else:
+            if label != "":
+                status = label + ": "
+            status += used + " (" + "/".join(
+                ["%d%%" % (100 * p[0] / p[1]) for p in pairs if p[1] >= 0]
+            ) + ")"
 
+        self.status_item.set_text(status)
+
+        tooltip = "/".join(
+            ["%s" % p[0] for p in [
+                ["download", maximum_download],
+                ["upload", maximum_upload],
+                ["total", maximum_total],
+            ] if p[1] >= 0]
+        ).capitalize()
+        if tooltip == "":
+            tooltip = "TrafficLimits plugin"
+        else:
+            tooltip += " during this period"
+        self.status_item.set_tooltip(tooltip)
+        
     def on_trafficlimit_update(self, label, upload, download, total,
                                maximum_upload, maximum_download, maximum_total,
                                reset_time_upload, reset_time_download,
