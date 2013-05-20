@@ -147,7 +147,7 @@ class Core(CorePluginBase):
 
         component.get("EventManager").emit(
             TrafficLimitUpdate(
-                self.label, self.upload, self.download, self.total,
+                self.config["label"], self.upload, self.download, self.total,
                 self.config["maximum_upload"],
                 self.config["maximum_download"],
                 self.config["maximum_total"],
@@ -231,7 +231,7 @@ class Core(CorePluginBase):
     @export
     def get_state(self):
         state = [
-            self.label, self.upload, self.download, self.total,
+            self.config["label"], self.upload, self.download, self.total,
             self.config["maximum_upload"],
             self.config["maximum_download"],
             self.config["maximum_total"],
