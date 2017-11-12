@@ -7,7 +7,7 @@ TrafficLimits can be found at
 [http://github.com/mavit/deluge-trafficlimits](http://github.com/mavit/deluge-trafficlimits).
 
 Downloads can be found at
-[http://www.triv.org.uk/~mavit/deluge-trafficlimits/](http://www.triv.org.uk/~mavit/deluge-trafficlimits/).
+[https://www.mavit.org.uk/deluge-trafficlimits/](https://www.mavit.org.uk/deluge-trafficlimits/).
 
 Questions may be asked on the
 [Deluge forum](http://forum.deluge-torrent.org/viewtopic.php?f=9&t=34343).
